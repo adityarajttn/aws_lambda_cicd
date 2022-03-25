@@ -42,6 +42,14 @@ jobs:
         run: aws ecr create-repository --repository-name aws_lambda_cicd
         continue-on-error: true
 
+  echo:
+    name: echo
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.image_version == "latest" }}
+    steps:
+      - name: echo
+        run: echo "Hello World"
+
   # build_docker_image:
   #   name: Build Docker Images
   #   runs-on: ubuntu-latest

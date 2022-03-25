@@ -23,6 +23,11 @@ on:
         - v1
         - v2
 
+      repository_name:
+        description: 'Number of Octocats'
+        required: false
+        default: "aws_lambda_cicd"
+
 jobs:
   create_ecr:
     name: Create ECR
@@ -39,7 +44,7 @@ jobs:
           aws-region: ${{ github.event.inputs.reason }}
 
       - name: Create repository for doctor_management
-        run: aws ecr create-repository --repository-name aws_lambda_cicd
+        run: aws ecr create-repository --repository-name ${{ github.event.inputs.repository_name }}
         continue-on-error: true
 
   echo:

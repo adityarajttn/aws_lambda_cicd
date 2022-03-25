@@ -44,7 +44,7 @@ jobs:
 
   echo:
     name: echo
-    needs: [build_all_images]
+    needs: [create_ecr]
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.image_version == 'latest' }}
     steps:

@@ -1,36 +1,76 @@
-# This is a basic workflow to help you get started with Actions
+name: AWS Lambda CICD
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      reason:
+        type: choice
+        description: Choose AWS Reason
+        options:
+        - us-east-1
+        - ap-south-1
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+      image_version:
+        type: choice
+        description: Choose Docker Image Tag
+        options:
+        - latest
+        - v1
+        - v2
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  create_ecr:
+    name: Create ECR
+    runs-on: self-hosted
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Check out code
+        uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ github.event.inputs.reason }}
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - name: Create repository for doctor_management
+        run: aws ecr create-repository --repository-name aws_lambda_cicd
+        continue-on-error: true
+
+  # build_docker_image:
+  #   name: Build Docker Images
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
+
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ap-south-1
+
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v1
+
+  #     - name: Build, tag, and push image to Amazon ECR
+  #       env:
+  #         ECR_REGISTRY: 892418949750.dkr.ecr.ap-south-1.amazonaws.com
+  #         TARGET: ${{ github.event.inputs.dir_name }}
+  #         ECR_REPOSITORY: "docg-dev/${{ github.event.inputs.dir_name }}"
+  #         IMAGE_TAG: latest
+  #       run: |
+  #         touch -d $( date --date=@$(( ( $RANDOM * $RANDOM * $RANDOM / 1000 ) )) -Iminutes ) $TARGET/Dockerfile  # hack for https://github.com/moby/buildkit/issues/1368
+  #         export DOCKER_BUILDKIT=1
+  #         export LATEST_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest
+  #         export CURRENT_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  #         docker pull $LATEST_IMAGE || true
+  #         docker build --file $TARGET/Dockerfile --cache-from $LATEST_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 -t $CURRENT_IMAGE .
+  #         docker push $CURRENT_IMAGE

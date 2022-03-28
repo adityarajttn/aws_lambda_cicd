@@ -89,10 +89,10 @@ jobs:
           docker pull $V2_IMAGE
           docker tag $V1_IMAGE $V2_IMAGE
           docker tag $LATEST_IMAGE $V1_IMAGE
-          docker push $V1_IMAGE
-          docker push $V2_IMAGE
           docker build --file app/Dockerfile -t $LATEST_IMAGE .
           docker push $LATEST_IMAGE
+          docker push $V1_IMAGE
+          docker push $V2_IMAGE
 
       # - name: Check out code
       #   uses: actions/checkout@v2

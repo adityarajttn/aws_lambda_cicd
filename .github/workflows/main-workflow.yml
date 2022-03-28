@@ -119,4 +119,14 @@ jobs:
         run: |
           echo -e "\repository_name = \"${{ github.event.inputs.repository_name }}\"\n" >> terraform.auto.tfvars
           echo -e "\image_tag = \"${{ github.event.inputs.image_version }}\"\n" >> terraform.auto.tfvars
+          echo -e "\image_tag = \"${{ github.event.inputs.image_version }}\"\n" >> terraform.auto.tfvars
           terraform init
+
+      - name: Terraform Init
+        id: plan
+
+      - name: Terraform Init
+        run: |
+          terraform apply -auto-approve
+
+        

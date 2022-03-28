@@ -14,7 +14,7 @@ resource "aws_lambda_function" "aws_lambda_cicd" {
     function_name                  = var.lambda_function_name
     image_uri                      = "${data.aws_ecr_repository.ecr_repository.repository_url}@${data.aws_ecr_image.image_digest.image_digest}"
     package_type                   = "Image"
-    role                           = aws_iam_role.iam_for_lambda.arn
+    role                           = aws_iam_role.iam_lambda_role.arn
     tags                           = {}
     tags_all                       = {}
     timeout                        = 30

@@ -117,10 +117,12 @@ jobs:
       - name: Terraform Init
         id: init
         run: |
-          echo -e "\repository_name = \"${{ github.event.inputs.repository_name }}\"\n" >> terraform.auto.tfvars
-          echo -e "\image_tag = \"${{ github.event.inputs.image_version }}\"\n" >> terraform.auto.tfvars
-          echo -e "\image_tag = \"${{ github.event.inputs.image_version }}\"\n" >> terraform.auto.tfvars
+          echo -e "\repository_name = \"${REPOSITORY_NAME}\"\n" >> terraform.auto.tfvars
+          echo -e "\image_tag = \"${IMAGE_TAG}\"\n" >> terraform.auto.tfvars
           terraform init
+        env:
+          REPOSITORY_NAME: ${{ github.event.inputs.repository_name }}
+          IMAGE_TAG: ${{ github.event.inputs.image_version }}
 
       - name: Terraform Plan
         id: plan

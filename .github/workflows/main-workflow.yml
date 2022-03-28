@@ -81,16 +81,16 @@ jobs:
           ECR_REPOSITORY: ${{ github.event.inputs.repository_name }}
           IMAGE_TAG: latest
         run: |
-          export LATEST_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest
-          export V1_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:v1
-          export V2_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:v2
-          docker pull $LATEST_IMAGE
-          docker pull $V1_IMAGE
-          docker pull $V2_IMAGE
-          docker tag $V1_IMAGE $V2_IMAGE
-          docker tag $LATEST_IMAGE $V1_IMAGE
-          docker push $V1_IMAGE
-          docker push $V2_IMAGE
+          # export LATEST_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # export V1_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:v1
+          # export V2_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:v2
+          # docker pull $LATEST_IMAGE
+          # docker pull $V1_IMAGE
+          # docker pull $V2_IMAGE
+          # docker tag $V1_IMAGE $V2_IMAGE
+          # docker tag $LATEST_IMAGE $V1_IMAGE
+          # docker push $V1_IMAGE
+          # docker push $V2_IMAGE
           docker build --file app/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 

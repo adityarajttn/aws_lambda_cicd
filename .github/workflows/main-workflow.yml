@@ -15,7 +15,7 @@ on:
         - us-east-1
         - ap-south-1
 
-      image_version:
+      image_tag:
         type: choice
         description: Choose Docker Image Tag
         options:
@@ -43,48 +43,71 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ github.event.inputs.reason }}
 
-      - name: Create repository for doctor_management
+      - name: Create repository 
         run: aws ecr create-repository --repository-name ${{ github.event.inputs.repository_name }}
         continue-on-error: true
 
-  echo:
-    name: echo
-    needs: [create_ecr]
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.image_version == 'latest' }}
-    steps:
-      - name: echo
-        run: echo "Hello World"
-
-  # build_docker_image:
-  #   name: Build Docker Images
+  # echo:
+  #   name: echo
+  #   needs: [create_ecr]
   #   runs-on: ubuntu-latest
+  #   if: ${{ github.event.inputs.image_version == 'latest' }}
   #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v2
+  #     - name: echo
+  #       run: echo "Hello World"
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ap-south-1
+  build_docker_image:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+    
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ github.event.inputs.reason }}
 
-  #     - name: Login to Amazon ECR
-  #       id: login-ecr
-  #       uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-  #     - name: Build, tag, and push image to Amazon ECR
-  #       env:
-  #         ECR_REGISTRY: 892418949750.dkr.ecr.ap-south-1.amazonaws.com
-  #         TARGET: ${{ github.event.inputs.dir_name }}
-  #         ECR_REPOSITORY: "docg-dev/${{ github.event.inputs.dir_name }}"
-  #         IMAGE_TAG: latest
-  #       run: |
-  #         touch -d $( date --date=@$(( ( $RANDOM * $RANDOM * $RANDOM / 1000 ) )) -Iminutes ) $TARGET/Dockerfile  # hack for https://github.com/moby/buildkit/issues/1368
-  #         export DOCKER_BUILDKIT=1
-  #         export LATEST_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest
-  #         export CURRENT_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-  #         docker pull $LATEST_IMAGE || true
-  #         docker build --file $TARGET/Dockerfile --cache-from $LATEST_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 -t $CURRENT_IMAGE .
-  #         docker push $CURRENT_IMAGE
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ github.event.inputs.repository_name }}
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # - name: Check out code
+      #   uses: actions/checkout@v2
+
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ap-south-1
+
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
+
+      # - name: Build, tag, and push image to Amazon ECR
+      #   env:
+      #     ECR_REGISTRY: 892418949750.dkr.ecr.ap-south-1.amazonaws.com
+      #     TARGET: ${{ github.event.inputs.dir_name }}
+      #     ECR_REPOSITORY: "docg-dev/${{ github.event.inputs.dir_name }}"
+      #     IMAGE_TAG: latest
+      #   run: |
+      #     touch -d $( date --date=@$(( ( $RANDOM * $RANDOM * $RANDOM / 1000 ) )) -Iminutes ) $TARGET/Dockerfile  # hack for https://github.com/moby/buildkit/issues/1368
+      #     export DOCKER_BUILDKIT=1
+      #     export LATEST_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest
+      #     export CURRENT_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      #     docker pull $LATEST_IMAGE || true
+      #     docker build --file $TARGET/Dockerfile --cache-from $LATEST_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 -t $CURRENT_IMAGE .
+      #     docker push $CURRENT_IMAGE

@@ -24,7 +24,7 @@ on:
         - v2
 
       repository_name:
-        description: 'Number of Octocats'
+        description: 'ECR repository name'
         required: false
         default: "aws_lambda_cicd"
 
@@ -58,6 +58,7 @@ jobs:
 
   build_docker_image:
     name: Build Docker Images
+    needs: [create_ecr]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -80,7 +81,7 @@ jobs:
           ECR_REPOSITORY: ${{ github.event.inputs.repository_name }}
           IMAGE_TAG: ${{ github.event.inputs.image_tag }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build --file app/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # - name: Check out code

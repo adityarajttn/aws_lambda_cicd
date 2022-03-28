@@ -6,10 +6,10 @@ provider "aws" {
 #remote_state.s3
 terraform {
   backend "s3" {
-    bucket = var.s3_bucket_name
-    key    = var.s3_key_name
-    region = var.region
-    dynamodb_table = var.dynamodb_table_name
+    bucket = "${var.s3_bucket_name}"
+    key    = "${var.s3_key_name}"
+    region = "${var.region}"
+    dynamodb_table = "${var.dynamodb_table_name}"
   }
 }
 

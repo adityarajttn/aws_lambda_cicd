@@ -122,10 +122,10 @@ jobs:
           echo -e "\image_tag = \"${{ github.event.inputs.image_version }}\"\n" >> terraform.auto.tfvars
           terraform init
 
-      - name: Terraform Init
+      - name: Terraform Plan
         id: plan
 
-      - name: Terraform Init
+      - name: Terraform Apply
         run: |
           terraform apply -auto-approve
 

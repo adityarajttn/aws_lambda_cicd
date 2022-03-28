@@ -6,10 +6,10 @@ provider "aws" {
 #remote_state.s3
 terraform {
   backend "s3" {
-    bucket = "${var.s3_bucket_name}"
-    key    = "${var.s3_key_name}"
-    region = "${var.region}"
-    dynamodb_table = "${var.dynamodb_table_name}"
+    bucket = "tf-cicd-s3-bucket"
+    key    = "terraform/terraform.tfstate"
+    region = "us-east-1"
+    dynamodb_table = "tf-state-locking"
   }
 }
 

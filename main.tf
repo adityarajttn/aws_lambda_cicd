@@ -17,7 +17,7 @@ terraform {
 module "lambda_function" {
   source = "./terraform_modules/lambda_function"
   ecr_repository_name = var.repository_name
-  doctor_image_tag = var.image_tag
+  docker_image_tag = var.image_tag
 }
 
 

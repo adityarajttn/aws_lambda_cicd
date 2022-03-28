@@ -3,7 +3,7 @@ variable "ecr_repository_name" {
   description = "ECR repository name"
 }
 
-variable "doctor_image_tag" {
+variable "docker_image_tag" {
   type = string
   description = "Docker Image Tag"
 }

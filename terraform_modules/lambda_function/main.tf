@@ -6,7 +6,7 @@ data "aws_ecr_repository" "ecr_repository" {
 # aws_ecr_image.image_digest:
 data "aws_ecr_image" "image_digest" {
   repository_name = "aws_lambda_cicd"
-  image_tag       = "${var.doctor_image_tag}"
+  image_tag       = "${var.docker_image_tag}"
 }
 
 # aws_lambda_function.aws_lambda_cicd:

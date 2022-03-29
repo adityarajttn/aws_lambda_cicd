@@ -11,6 +11,7 @@ on:
       reason:
         type: choice
         description: Choose AWS Reason
+        default: us-east-1
         options:
         - us-east-1
         - ap-south-1
@@ -18,6 +19,7 @@ on:
       image_tag:
         type: choice
         description: Choose Docker Image Tag
+        default: latest
         options:
         - latest
         - v1

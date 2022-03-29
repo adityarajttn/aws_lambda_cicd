@@ -58,5 +58,5 @@ jobs:
           curl \
           -X POST \
           -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/adityarajttn/tf_aws_lambda/actions/workflows/main-workflow.yml/dispatches \
+          https://api.github.com/repos/adityarajttn/tf_aws_lambda/actions/workflows/dispatches \
           -d '{"ref":"main", "inputs": { "reason":$AWS_REGION, "image_tag":$IMAGE_TAG, "repository_name": $ECR_REPOSITORY }}'

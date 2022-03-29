@@ -32,7 +32,7 @@ jobs:
   build_docker_image:
     name: Create ECR and build docker image
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.image_version == 'latest' }}
+    if: ${{ github.event.inputs.image_tag == 'latest' }}
     steps:
       - name: Check out code
         uses: actions/checkout@v2

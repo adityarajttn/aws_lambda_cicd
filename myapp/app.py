@@ -6,10 +6,10 @@ def lambda_handler(event, context):
     if r.status_code == 200:
         return {
             'statusCode': 200,
-            'body': json.dumps('The Get request was successfull from V2!')
+            'body': json.dumps('The Get request was successfull from V1!')
         }
 
     return {
             'statusCode': 200,
-            'body': json.dumps('Get request was not successfull from V2!!')
+            'body': json.dumps('Get request was not successfull from V1!!')
     }

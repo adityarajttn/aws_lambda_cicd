@@ -3,8 +3,28 @@ name: AWS Lambda CICD
 on:
   push:
     branches: [ main ]
-  # pull_request:
-  #   branches: [ main ]
+    inputs:
+      reason:
+        type: string
+        description: Choose AWS Reason
+        default: us-east-1
+        # options:
+        # - us-east-1
+        # - ap-south-1
+
+      image_tag:
+        type: string
+        description: Choose Docker Image Tag
+        default: latest
+        # options:
+        # - latest
+        # - v1
+        # - v2
+
+      repository_name:
+        description: 'ECR repository name'
+        required: false
+        default: "aws_lambda_cicd"
 
   workflow_dispatch:
     inputs:
@@ -34,7 +54,6 @@ jobs:
   build_docker_image:
     name: Create ECR and build docker image
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.image_tag == 'latest' }}
     steps:
       - name: Check out code
         uses: actions/checkout@v2

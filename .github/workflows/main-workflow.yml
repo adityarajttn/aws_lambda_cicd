@@ -71,44 +71,44 @@ jobs:
           docker push $V1_IMAGE
           docker push $V2_IMAGE
 
-  terraform:
-    name: "Update Lambda function"
-    needs: [build_docker_image]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # terraform:
+  #   name: "Update Lambda function"
+  #   needs: [build_docker_image]
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ github.event.inputs.reason }}
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ github.event.inputs.reason }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.0.10
+  #     - name: Setup Terraform
+  #       uses: hashicorp/setup-terraform@v1
+  #       with:
+  #         terraform_version: 1.0.10
 
-      - name: Terraform Init
-        id: init
-        run: |
-          echo -e "repository_name = \"${REPOSITORY_NAME}\"\n" >> terraform.auto.tfvars
-          echo -e "image_tag = \"${IMAGE_TAG}\"\n" >> terraform.auto.tfvars
-          terraform init
-        env:
-          REPOSITORY_NAME: ${{ github.event.inputs.repository_name }}
-          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+  #     - name: Terraform Init
+  #       id: init
+  #       run: |
+  #         echo -e "repository_name = \"${REPOSITORY_NAME}\"\n" >> terraform.auto.tfvars
+  #         echo -e "image_tag = \"${IMAGE_TAG}\"\n" >> terraform.auto.tfvars
+  #         terraform init
+  #       env:
+  #         REPOSITORY_NAME: ${{ github.event.inputs.repository_name }}
+  #         IMAGE_TAG: ${{ github.event.inputs.image_tag }}
 
-      - name: Terraform Plan
-        id: plan
-        run: |
-          terraform plan
+  #     - name: Terraform Plan
+  #       id: plan
+  #       run: |
+  #         terraform plan
 
-      - name: Terraform Apply
-        run: |
-          terraform apply -auto-approve
+  #     - name: Terraform Apply
+  #       run: |
+  #         terraform apply -auto-approve
 
         

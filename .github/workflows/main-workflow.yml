@@ -29,9 +29,10 @@ on:
         default: "aws_lambda_cicd"
 
 jobs:
-  create_ecr:
-    name: Create ECR
+  build_docker_image:
+    name: Create ECR and build docker image
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.image_version == 'latest' }}
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -46,30 +47,6 @@ jobs:
       - name: Create repository 
         run: aws ecr create-repository --repository-name ${{ github.event.inputs.repository_name }}
         continue-on-error: true
-
-  # echo:
-  #   name: echo
-  #   needs: [create_ecr]
-  #   runs-on: ubuntu-latest
-  #   if: ${{ github.event.inputs.image_version == 'latest' }}
-  #   steps:
-  #     - name: echo
-  #       run: echo "Hello World"
-
-  build_docker_image:
-    name: Build Docker Images
-    needs: [create_ecr]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-    
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ github.event.inputs.reason }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -98,6 +75,7 @@ jobs:
     name: "Update Lambda function"
     needs: [build_docker_image]
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - name: Checkout
         uses: actions/checkout@v2

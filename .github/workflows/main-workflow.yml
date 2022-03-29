@@ -5,45 +5,58 @@ on:
     branches: [ main ]
 
 env:
+  AWS_REGION: us-east-1
   ECR_REPOSITORY: aws_lambda_cicd
   IMAGE_TAG: latest
 
 jobs:
-  build_docker_image:
-    name: Create ECR and build docker image
+  # build_docker_image:
+  #   name: Create ECR and build docker image
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
+
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: us-east-1
+
+  #     - name: Create repository 
+  #       run: aws ecr create-repository --repository-name $ECR_REPOSITORY
+  #       continue-on-error: true
+
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v1
+
+  #     - name: Build, tag, and push image to Amazon ECR
+  #       env:
+  #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #       run: |
+  #         export LATEST_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest
+  #         export V1_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:v1
+  #         export V2_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:v2
+  #         docker pull $LATEST_IMAGE
+  #         docker pull $V1_IMAGE
+  #         docker pull $V2_IMAGE
+  #         docker tag $V1_IMAGE $V2_IMAGE
+  #         docker tag $LATEST_IMAGE $V1_IMAGE
+  #         docker build --file myapp/Dockerfile -t $LATEST_IMAGE .
+  #         docker push $LATEST_IMAGE
+  #         docker push $V1_IMAGE
+  #         docker push $V2_IMAGE
+
+  trigger_tf_workflow:
+    name: Trigger Terraform Workflow
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Create repository 
-        run: aws ecr create-repository --repository-name $ECR_REPOSITORY
-        continue-on-error: true
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      - name: Make API call to trigger terraform workflow
         run: |
-          export LATEST_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest
-          export V1_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:v1
-          export V2_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:v2
-          docker pull $LATEST_IMAGE
-          docker pull $V1_IMAGE
-          docker pull $V2_IMAGE
-          docker tag $V1_IMAGE $V2_IMAGE
-          docker tag $LATEST_IMAGE $V1_IMAGE
-          docker build --file myapp/Dockerfile -t $LATEST_IMAGE .
-          docker push $LATEST_IMAGE
-          docker push $V1_IMAGE
-          docker push $V2_IMAGE
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/adityarajttn/tf_aws_lambda/actions/workflows/main-workflow.yml/dispatches \
+          -d '{"ref":"main", "inputs": { "reason":$AWS_REGION, "image_tag":$IMAGE_TAG, "repository_name": $ECR_REPOSITORY }}'

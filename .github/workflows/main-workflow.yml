@@ -3,52 +3,33 @@ name: AWS Lambda CICD
 on:
   push:
     branches: [ main ]
-    inputs:
-      reason:
-        type: string
-        description: Choose AWS Reason
-        default: us-east-1
-        # options:
-        # - us-east-1
-        # - ap-south-1
 
-      image_tag:
-        type: string
-        description: Choose Docker Image Tag
-        default: latest
-        # options:
-        # - latest
-        # - v1
-        # - v2
+env:
+  AWS_REGION: us-east-1
 
-      repository_name:
-        description: 'ECR repository name'
-        required: false
-        default: "aws_lambda_cicd"
+  # workflow_dispatch:
+  #   inputs:
+  #     reason:
+  #       type: string
+  #       description: Choose AWS Reason
+  #       default: us-east-1
+  #       options:
+  #       - us-east-1
+  #       - ap-south-1
 
-  workflow_dispatch:
-    inputs:
-      reason:
-        type: string
-        description: Choose AWS Reason
-        default: us-east-1
-        # options:
-        # - us-east-1
-        # - ap-south-1
+  #     image_tag:
+  #       type: string
+  #       description: Choose Docker Image Tag
+  #       default: latest
+  #       options:
+  #       - latest
+  #       - v1
+  #       - v2
 
-      image_tag:
-        type: string
-        description: Choose Docker Image Tag
-        default: latest
-        # options:
-        # - latest
-        # - v1
-        # - v2
-
-      repository_name:
-        description: 'ECR repository name'
-        required: false
-        default: "aws_lambda_cicd"
+  #     repository_name:
+  #       description: 'ECR repository name'
+  #       required: false
+  #       default: "aws_lambda_cicd"
 
 jobs:
   build_docker_image:
@@ -63,10 +44,10 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ github.event.inputs.reason }}
+          aws-region: $AWS_REGION
 
       - name: Create repository 
-        run: aws ecr create-repository --repository-name ${{ github.event.inputs.repository_name }}
+        run: aws ecr create-repository --repository-name aws_lambda_cicd
         continue-on-error: true
 
       - name: Login to Amazon ECR
@@ -76,7 +57,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ github.event.inputs.repository_name }}
+          ECR_REPOSITORY: aws_lambda_cicd
           IMAGE_TAG: latest
         run: |
           export LATEST_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest
